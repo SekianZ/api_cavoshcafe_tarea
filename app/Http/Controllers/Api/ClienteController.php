@@ -15,7 +15,9 @@ class ClienteController extends Controller
         $this->service = $service;
     }
 
+    // ========================================
     // POST /api/login
+    // ========================================
     public function getCliente(Request $request)
     {
         $rows = $this->service->getCliente($request->all());
@@ -31,7 +33,9 @@ class ClienteController extends Controller
         ]);
     }
 
+    // ========================================
     // POST /api/registrar
+    // ========================================
     public function setCliente(Request $request)
     {
         $rows = $this->service->setCliente($request->all());
@@ -60,7 +64,9 @@ class ClienteController extends Controller
         ]);
     }
 
+    // ========================================
     // POST /api/codigo
+    // ========================================
     public function getClienteCodigo(Request $request)
     {
         $rows = $this->service->getClienteCodigo($request->all());
@@ -72,11 +78,39 @@ class ClienteController extends Controller
         $data    = $hasCodigo ? $rows : null;
 
         if ($hasCodigo) {
-            $message = 'Cliente generado';
+            $message = 'Código generado';
         } elseif ($hasError) {
             $message = $rows['error'];
         } else {
             $message = 'No se pudo generar el código';
+        }
+
+        return response()->json([
+            'success' => $success,
+            'data'    => $data,
+            'message' => $message,
+        ]);
+    }
+
+    // ========================================
+    // POST /api/validar-codigo (NUEVO)
+    // ========================================
+    public function validarCodigo(Request $request)
+    {
+        $result = $this->service->validarCodigo($request->all());
+
+        $hasError = isset($result['error']);
+        $success  = isset($result['valido']) && $result['valido'] === true;
+
+        if ($success) {
+            $message = 'Código válido';
+            $data = $result['cliente'];
+        } elseif ($hasError) {
+            $message = $result['error'];
+            $data = null;
+        } else {
+            $message = 'No se pudo validar el código';
+            $data = null;
         }
 
         return response()->json([
